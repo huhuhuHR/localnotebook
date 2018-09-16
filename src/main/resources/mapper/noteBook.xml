@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huhuhu.dao.NoteBookDao">
+    <!--note_id,note_book_id,note_name,note_text,create_time,update_time,remove-->
+    <resultMap id="notes" type="com.huhuhu.pojo.Notes">
+        <result property="noteId" column="note_id"></result>
+        <result property="noteBookId" column="note_book_id"></result>
+        <result property="noteName" column="note_name"></result>
+        <result property="noteText" column="note_text"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="updateTime" column="update_time"></result>
+        <result property="remove" column="remove"></result>
+    </resultMap>
+    <!--note_book_id,note_book_name,create_time,remove,update_time-->
+    <resultMap id="books" type="com.huhuhu.pojo.MyNoteBook">
+        <result column="note_book_id" property="noteBookId"></result>
+        <result column="note_book_name" property="noteBookName"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="update_time" property="updateTime"></result>
+        <result column="remove" property="remove"></result>
+    </resultMap>
+    <!--0升序1降序-->
+    <select id="selectNoteBook" resultMap="books" parameterType="java.util.Map">
+        SELECT
+        note_book_id 'noteBookId',
+        note_book_name 'noteBookName',
+        create_time 'createTime',
+        update_time 'updateTime',
+        remove 'remove'
+        FROM hr_note_book
+        WHERE remove = '0'
+        <if test="noteBookName!=null and noteBookName!=''">
+            AND note_book_Name LIKE concat('%', #{noteBookName},'%')
+        </if>
+        ORDER BY update_time DESC
+    </select>
+    <insert id="addNoteBook" parameterType="java.util.Map">
+        INSERT INTO hr_note_book (note_book_name, create_time, remove)
+        VALUES (#{noteBookName}, now(), '0')
+    </insert>
+    <update id="updateNoteBook" parameterType="java.util.Map">
+        UPDATE hr_note_book
+        SET note_book_name = #{noteBookName},
+        update_time = now()
+        WHERE note_book_id= #{noteBookId}
+    </update>
+    <update id="updateNote" parameterType="java.util.Map">
+        UPDATE hr_note_notes
+        SET note_name = #{noteName},
+          note_text   = #{noteText},
+        update_time = now()
+        WHERE note_id = #{noteId}
+    </update>
+    <insert id="addNotes" parameterType="java.util.Map">
+        INSERT INTO hr_note_notes (note_book_id, note_name, note_text, create_time, update_time, remove)
+        VALUES (#{noteBookId}, #{noteName}, #{noteText}, now(), now(), '0')
+    </insert>
+    <select id="selectNotes" resultMap="notes" parameterType="java.util.Map">
+        SELECT
+        note_id,
+        note_book_id,
+        note_name,
+        create_time,
+        update_time
+        FROM hr_note_notes
+        WHERE remove = '0'
+        <if test="noteBookId!=null">
+            AND note_book_id = #{noteBookId}
+        </if>
+        <if test="searchKey!=null">
+            AND
+            (
+            note_name LIKE concat('%', #{searchKey}, '%')
+            ||
+            note_text LIKE concat('%', #{searchKey}, '%')
+            )
+        </if>
+        ORDER BY update_time DESC
+    </select>
+    <select id="countNotes" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        SELECT count(1)
+        FROM hr_note_notes
+        WHERE note_book_id = #{noteBookId}
+    </select>
+    <select id="selectNoteText" resultMap="notes" parameterType="java.lang.Integer">
+        SELECT
+            note_id,
+            note_book_id,
+            note_name,
+            note_text,
+            create_time,
+            update_time,
+            remove
+        FROM hr_note_notes
+        WHERE note_id = #{noteId}
+        AND remove = '0'
+    </select>
+    <delete id="deleteBook" parameterType="java.lang.Integer">
+        DELETE FROM hr_note_book
+        WHERE note_book_id = #{noteBookId}
+    </delete>
+    <delete id="deleteNoteAll" parameterType="java.lang.Integer">
+      DELETE FROM hr_note_notes
+      WHERE note_book_id = #{noteBookId}
+    </delete>
+    <delete id="deleteNoteOne" parameterType="java.lang.Integer">
+        DELETE FROM hr_note_notes
+        WHERE note_id = #{noteId}
+    </delete>
+</mapper>

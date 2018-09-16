@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+    <!--扫描路径下的注释类,pring 可以自动去扫描包com.huhuhu下面的包或子包下面的Java文件，
+    如果扫描到有Spring的相关注解的类，则把这些类注册为Spring的bean-->
+    <context:component-scan base-package="com.huhuhu.controller"/>
+    <mvc:view-controller path="/" view-name="redirect:/v1/initNoteBookList"/>
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="com.huhuhu.interceptor.BasePathInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+    <!--springmvc提供的一键式配置方法，自动注册组件-->
+    <mvc:annotation-driven/>
+    <!--
+        静态资源默认servlet配置
+        (1)加入对静态资源的处理：js,gif,png
+        (2)允许使用"/"做整体映射
+    -->
+    <mvc:default-servlet-handler/>
+    <!-- 访问springmvc，webapp下面的静态html-->
+    <mvc:resources mapping="/js/**" location="/WEB-INF/js/" cache-period="31556926"/>
+    <mvc:resources mapping="/css/**" location="/WEB-INF/css/" cache-period="31556928"/>
+    <!--<mvc:resources mapping="/ueditor/**" location="/ueditor/" cache-period="31556928"/>-->
+</beans>

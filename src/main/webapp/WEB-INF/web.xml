@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+             http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+    <display-name>Archetype Created Web Application</display-name>
+    <!-- 解决Spring框架中从页面传来的字符串的中文乱码问题
+     Spring框架给我们提供过滤器CharacterEncodingFilter
+    这个过滤器就是针对于每次浏览器请求进行过滤的，然后再其之上添加了父类没有的功能即处理字符编码。
+    其中encoding用来设置编码格式，forceEncoding用来设置是否理会 request.getCharacterEncoding()方法，
+    设置为true则强制覆盖之前的编码格式,根据需要设置。-->
+    <filter>
+        <filter-name>characterEncodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <!--用来指定一个具体的字符集-->
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+
+            <param-name>forceEncoding</param-name>
+            <!--true：无论request是否指定了字符集，都使用encoding；false：如果request已指定一个字符集，则不使用encoding-->
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>characterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!--日志监听-->
+    <context-param>
+        <param-name>logbackConfigLocation</param-name>
+        <param-value>
+            classpath:logback.xml
+        </param-value>
+    </context-param>
+    <listener>
+        <listener-class>ch.qos.logback.ext.spring.web.LogbackConfigListener</listener-class>
+    </listener>
+
+    <!--spring监听-->
+    <!--<context-param>-->
+        <!--<param-name>contextConfigLocation</param-name>-->
+        <!--<param-value>-->
+            <!--classpath:spring/spring-application.xml-->
+            <!--classpath:spring/spring-service.xml-->
+            <!--classpath:spring/spring-dao.xml-->
+        <!--</param-value>-->
+    <!--</context-param>-->
+    <!--<listener>-->
+        <!--<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>-->
+    <!--</listener>-->
+
+    <!-- 如果是用mvn命令生成的xml，需要修改servlet版本为3.1 -->
+    <!-- 配置DispatcherServlet -->
+    <servlet>
+        <servlet-name>DispatcherServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!-- 配置springMVC需要加载的配置文件
+            spring-dao.xml,spring-service.xml,spring-application.xml
+            Mybatis - > spring -> springmvc
+         -->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:spring/*.xml</param-value>
+        </init-param>
+        <!--指定当web容器启动时,加载servlet的顺序-->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>DispatcherServlet</servlet-name>
+        <!-- 默认匹配所有的请求 -->
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <!--错误页面 -->
+    <error-page>
+        <error-code>404</error-code>
+        <location>/WEB-INF/html/error.html</location>
+    </error-page>
+    <error-page>
+        <exception-type>java.lang.Exception</exception-type>
+        <location>/WEB-INF/html/error.html</location>
+    </error-page>
+</web-app>
